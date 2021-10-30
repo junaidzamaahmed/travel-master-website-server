@@ -1,6 +1,7 @@
 const express = require('express')
 const { MongoClient } = require('mongodb');
 var cors = require('cors')
+const ObjectId = require('mongodb').ObjectId;
 require('dotenv').config()
 
 const app = express()
@@ -22,24 +23,44 @@ async function run() {
         console.log('mongodb connected')
         const database = client.db("tripMaster");
         const packageCollection = database.collection("packages")
+        const orderCollection = database.collection("orders")
 
         // GET API
-        app.get('/packages', async(req,res)=>{
+        app.get('/packages', async (req, res) => {
             const cursor = packageCollection.find({});
-            const products = await cursor.toArray();
-
-            res.json(products)
-
+            const packages = await cursor.toArray();
+            res.json(packages)
+        })
+        
+        app.get('/orders', async (req, res) => {
+            const cursor = orderCollection.find({});
+            const bookings = await cursor.toArray();
+            res.json(bookings)
         })
 
-        // POST API
-        app.post('/packages', async(req,res)=>{
+        // FIND SPECIFIC DATA API
+        app.get('/packages/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const pkg = await packageCollection.findOne(query);
+            res.send(pkg)
+        })
+
+
+        // ADD PACKAGE API
+        app.post('/packages', async (req, res) => {
             const package = req.body;
-            console.log('post hit', package)
             const result = await packageCollection.insertOne(package)
-            console.log(result)
             res.json(result)
         })
+
+        // ORDER API
+        app.post('/orders', async (req, res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order)
+            res.json(result)
+        })
+
 
     } finally {
 
