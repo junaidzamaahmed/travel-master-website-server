@@ -54,13 +54,24 @@ async function run() {
             res.json(result)
         })
 
-        // ORDER API
+        // ORDERS API
         app.post('/orders', async (req, res) => {
             const order = req.body;
+            console.log(order)
             const result = await orderCollection.insertOne(order)
             res.json(result)
         })
 
+        // MY ORDERS API
+        app.get('/orders/:userID', async (req, res) => {
+            const userID = req.params.userID;
+            console.log(userID)
+            const query = { userID: userID }
+            console.log(query)
+            const cursor = orderCollection.find(query);
+            const orders = await cursor.toArray()
+            res.send(orders)
+        })
 
     } finally {
 
