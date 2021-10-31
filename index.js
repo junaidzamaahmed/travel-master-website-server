@@ -31,7 +31,7 @@ async function run() {
             const packages = await cursor.toArray();
             res.json(packages)
         })
-        
+
         app.get('/orders', async (req, res) => {
             const cursor = orderCollection.find({});
             const bookings = await cursor.toArray();
@@ -70,13 +70,27 @@ async function run() {
             res.send(orders)
         })
 
+        // Approve ORDER API
+        app.put('/approve/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    status: true
+                },
+            };
+            const result = await orderCollection.updateOne(filter, updateDoc, options);
+            res.json(result)
+        })
+
         // Delete ORDER API
-        app.delete('/delete/:id', async(req, res)=> {
+        app.delete('/delete/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await orderCollection.deleteOne(query);
             res.send(result)
-          })
+        })
 
     } finally {
 
